@@ -1,4 +1,4 @@
-hello:
+day1:
 	rm -rf build
 	mkdir build
 	gcc -o ./build/part1 part1.c
