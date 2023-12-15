@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "part1.h"
+#include "game.h"
+
+int isGameValid(struct Game game);
 
 int MAX_NO_OF_ROUNDS = 10;
 
@@ -32,7 +34,7 @@ int main() {
   char line[200];
   while (fgets(line, 200, fptr)) {
 
-    struct Game game = gameFromLine(line);
+    struct Game game = gameFromLine(line, MAX_NO_OF_ROUNDS);
     
     if (isGameValid(game)) {
       printf("%d\n", sum);
@@ -47,89 +49,6 @@ int main() {
   printf("answer is %d\n", sum);
   fclose(fptr);
   return 0;
-}
-
-struct Game gameFromLine(char* line) {
-  struct Game game;
-
-  // Find iD
-  int ID = getIdFromLine(line);
-  // Allocates an array of 3 rounds.
-  struct Round* rounds = getRoundsFromLine(line);
-  game.rounds = rounds;
-  game.ID = ID;
-
-  return game;
-}
-
-int getIdFromLine(char* line) {
-  int posOfColon = getIndexOfColon(line);
-  int startOfId = 5;
-  int lengthOfID = posOfColon - startOfId;
-
-  int ID = 0;
-  for (int i = 0 ; i < lengthOfID ; i++) {
-    char currentChar = line[startOfId + i];
-    int num = currentChar - '0';
-    if (i != lengthOfID) {
-      // Not last number
-      ID += num * pow(10, lengthOfID - i - 1);
-    } else {
-      // Last number
-      ID += num;
-    }
-  }
-  return ID;
-}
-
-struct Round* getRoundsFromLine(char* line) {
-  struct Round* rounds = malloc(MAX_NO_OF_ROUNDS * sizeof(struct Round));
-  int searchStart = getIndexOfColon(line);
-
-  int currentRound = 0;
-  int currentNumber = 0;
-  rounds[0].red = 0;
-  rounds[0].green = 0;
-  rounds[0].blue = 0;
-  printf("%s\n", line);
-  for (int i = searchStart + 2;i < strlen(line); i++) {
-    char currentChar = line[i];
-    if (isdigit(currentChar)) {
-      int number = currentChar - '0';
-      printf("%d\n", number);
-      currentNumber = currentNumber * 10 + number;
-    } else {
-      if (currentChar == 'r' && line[i-1] == ' ') { 
-        // Number was for red
-        rounds[currentRound].red = currentNumber;
-        currentNumber = 0;
-      }
-      if (currentChar == 'g' && line[i-1] == ' ') { 
-        // Number was for green 
-        rounds[currentRound].green = currentNumber;
-        currentNumber = 0;
-      }
-      if (currentChar == 'b' && line[i-1] == ' ') { 
-        // Number was for blue
-        rounds[currentRound].blue = currentNumber;
-        currentNumber = 0;
-        printf("BLUE %d\n", currentNumber);
-      }
-      if (currentChar == ';') {
-        currentRound += 1;
-      }
-    }
-  }
-
-  return rounds;
-}
-
-int getIndexOfColon(char* line) {
-  char colon[2] = ":";
-
-  char *searchColon = strstr(line, colon);
-  int posOfColon = searchColon - line;
-  return posOfColon;
 }
 
 int isGameValid(struct Game game) {
